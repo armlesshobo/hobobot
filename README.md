@@ -57,4 +57,5 @@ Known bugs
 Contact
 =======
 
-Author: Lance Clark <haYnguy AT gmail DOT com>
+Author: Lance Clark
+E-mail: haYnguy@gmail.com
