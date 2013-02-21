@@ -39,12 +39,12 @@ Available Commands
 - !info     - outputs a description about the bot.
 - !die      - cleanly stops the bot.
 - !shutdown - same as !die.
-- !weather <location> - gets weather information from any part of the world. 
-                      <location> can either be a city, or zipcode. For more specific results,
+- !weather \<location\> - gets weather information from any part of the world. 
+                      \<location\> can either be a city, or zipcode. For more specific results,
                       you should try adding a state, province, or country after the city.
                       The API only accepts US zipcodes.
-- !seen <nick>    - gets the last time the bot saw <nick> and what their last message was.
-- !google <query> - will generate a URL for a Google search for <query>.
+- !seen \<nick\>    - gets the last time the bot saw \<nick\> and what their last message was.
+- !google \<query\> - will generate a URL for a Google search for \<query\>.
 
 
 Known bugs
