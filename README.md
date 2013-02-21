@@ -6,7 +6,7 @@ a simple, personal IRC bot
 Required Modules
 ================
 - Bot::BasicBot
-- Weather::Com::Base
+- Yahoo::Weather
 - DateTime
 
 Use 'cpan' to get these modules.
