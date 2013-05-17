@@ -37,7 +37,7 @@ my $port = "6667";
 
 #Bot Configuration
 my $bot_nick = "hobobot";
-my @channels = ["#korea"];
+my @channels = ["#ggoogi","#korea"];
 my @op_list = ("armlesshobo", "ggoogi", "iGG", "xGG");
 my @bot_alt_nicks = ["ahobobot", "h0bobot"];
 my $bot_name = "hobobot";
@@ -59,17 +59,13 @@ sub isOp($) #checks to see if sender is Op
 
   foreach( @op_list )
   {
-    print("Comparing: $_ with $sender\n");
     if ( $_ eq $sender )
     {
-      print("$sender is an Op\n");  
       return 1;
     }
   }
-  print("$sender is not an Op\n");
   return 0;
 }
-
 
 sub said(\%)
 {
@@ -78,16 +74,6 @@ sub said(\%)
    #pull out the sender and msg
    my $txt = $msg->{body}; 
    my $sndr = $msg->{who};
-
-   #update the !seen table
-   my $date = DateTime->now();
-   my $date = $date->ymd('/') . " " . $date->hms;
-
-   my @seen_tuple = ($date, $txt);
-   $seen_list{$sndr} = \@seen_tuple;
-   #end !seen table update
-
-   #print("On $date, $sndr said '$txt'\n");
 
    #process input
    if ($txt =~ m/^!info$/) #standard info about the bot
@@ -101,7 +87,8 @@ sub said(\%)
    elsif ( $txt =~ m/^!shutdown$/ or  #to cleanly shutdown the bot
            $txt =~ m/^!die$/ )
    {
-      if ( isOp($sndr) ){
+      if ( isOp($sndr) )
+      {
          $self->shutdown();
       }
    }
@@ -111,19 +98,31 @@ sub said(\%)
         shift(@tokens);
         my $location = join(' ', @tokens);
 
-        if ( $location eq "" ){
+        #clean the input a bit
+        $location =~ s/[\\\/]//g; #back and forward slashes
+        $location =~ s/[0-9]//g;  #numbers
+        $location =~ s/[\`\~\!\@\#\$\%\^\&\*\(\)\-\_\=\+]//g; #special chars
+        $location =~ s/[\[\]\{\}\;\:\"\,\.\<\>\?]//g;
+        $location =~ s/\'/\\'/g; #some places have apostrophes in their name. Don't strip out.
+
+        if ( $location eq "" )
+        {
            return "$sndr: Please use the format '!weather <location>'";
 	}
-        else{
+        else
+        {
 	   my $yw = Yahoo::Weather->new();
 
            my $wres = $yw->getWeatherByLocation($location);
-           if ( $wres <= 0 ){
+           if ( $wres <= 0 )
+           {
+              return "$sndr: No data available" if ( $wres == -1 );
 	      return "$sndr: Invalid location specified" if ( $wres == -2 );
               return "$sndr: Forecast for that area not available" if ( $wres == -3 );
               return "$sndr: Unknown error ($wres)";
            }
-	   else{
+	   else
+           {
              my %res = %{$wres};
 	     my %co = %{$res{CurrentObservation}};
              
@@ -132,41 +131,78 @@ sub said(\%)
         }
    }
    elsif ( $txt =~ m/^!seen/ ) #outputs when a person was last seen
-   {
+   { 
       my @tokens = split(' ', $txt);
       shift( @tokens );
 
-      print("$sndr is looking for $tokens[0]\n");
-
       if ( defined( $tokens[0] ) )
       {
-         my @tuple = $seen_list{$tokens[0]};
-         if ( @tuple and $tuple[0][0] and $tuple[0][1] ){
-            return "Last saw $tokens[0] on $tuple[0][0]. Their last message was: <$tokens[0]> $tuple[0][1]";
+         my $name = join(' ', @tokens);
+         if ( $name eq "hobobot" )
+         {
+             return "I'm right here. This is the last thing I said";
          }
-         else{
-	    return "$tokens[0] hasn't been seen recently.";
+
+         my @tuple = $seen_list{lc($name)};
+         if ( @tuple and $tuple[0][0] and $tuple[0][1] )
+         {
+            return "Last saw $name on $tuple[0][0]. Their last message was: <$name> $tuple[0][1]";
+         }
+         else
+         {
+	    return "$name hasn't been seen recently.";
          }
       }
+      else
+      {
+         return "Please use '!seen <nick>' format";
+      }
    }
-   elsif ( $txt =~ m/^!google/ ) #generates a google search URL
+   elsif ( $txt =~ m/^!ndic/ ) #generates a naver dictionary search URL
    {
       my @tokens = split(' ', $txt );
 
       shift( @tokens );
       my $query = join('+', @tokens);
 
-      if ( defined( $query ) ){
-          return "https://www.google.com/search?q=$query&ie=UTF-8";
+      if ( defined( $query ) )
+      {
+          return "http://dic.naver.com/search.naver?query=$query";
       }
-      else{
-          return "Please use '!google QUERY' format.";
+      else
+      {
+          return "Please use '!ndic QUERY' format.";
       }
    }
+   elsif ( $txt =~ m/^!google/ ) #generate google search URL
+   {
+      my @tokens = split(' ', $txt );
+
+      shift( @tokens );
+      my $query = join('+', @tokens);
+
+      if ( defined( $query ) )
+      {
+          return "https://www.google.com/search?q=$query&ie=UTF-8";
+      }
+      else
+      {
+          return "Please use '!googl QUERY' format.";
+      }
+   }
+
+
+   #update the !seen table
+   my $date = DateTime->now();
+   my $date = $date->mdy('/') . " " . $date->hms . "CST";
+
+   my @seen_tuple = ($date, $txt);
+   $seen_list{lc($sndr)} = \@seen_tuple;
+
 }
 
 
-# with all known options
+# we have all that we need
 HoboBot->new(
 
     server => $server,
