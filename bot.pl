@@ -124,9 +124,15 @@ sub said(\%)
 	   else
            {
              my %res = %{$wres};
-	     my %co = %{$res{CurrentObservation}};
-             
-             return "$sndr: $res{Title}: $co{text}, Temperature of $co{temp}C. Last updated on $co{date}. ";
+             if ( $res{CurrentObservation} )
+             {
+	        my %co = %{$res{CurrentObservation}};
+                return "$sndr: $res{Title}: $co{text}, Temperature of $co{temp}C. Last updated on $co{date}. ";
+	     }
+             else
+             {
+		return "$sndr: No data available for $location";
+             }
            } 
         }
    }
