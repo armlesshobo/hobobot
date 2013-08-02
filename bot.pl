@@ -38,7 +38,7 @@ my $port = "6667";
 #Bot Configuration
 my $bot_nick = "hobobot";
 my @channels = ["#ggoogi","#korea"];
-my @op_list = ("armlesshobo", "ggoogi", "iGG", "xGG");
+my @op_list = ("armlesshobo", "ggoogi", "iGG", "xGG", "luto");
 my @bot_alt_nicks = ["ahobobot", "h0bobot"];
 my $bot_name = "hobobot";
 my $bot_username = "hobobot";
@@ -193,7 +193,7 @@ sub said(\%)
       }
       else
       {
-          return "Please use '!googl QUERY' format.";
+          return "Please use '!google QUERY' format.";
       }
    }
 
